@@ -1,3 +1,4 @@
+
 export const PeopleFilters = () => {
   return (
     <nav className="panel">
