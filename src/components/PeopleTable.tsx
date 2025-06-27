@@ -1,12 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import cn from 'classnames';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams} from 'react-router-dom';
 import { Person } from '../types';
 import { SearchLink } from './SearchLink';
 import { useEffect, useState } from 'react';
-// import { getSearchWith } from '../utils/searchHelper';
-
 
 type Props = {
   allPeople: Person[];
@@ -15,18 +13,20 @@ type Props = {
 export const PeopleTable: React.FC<Props> = ({ allPeople }) => {
   const { slug } = useParams();
 
-  const [searchParams] = useSearchParams();
-  const sort = searchParams.get('sort') || null;
-
   const [peopleToDisplay, setPeopleToDisplay] = useState<Person[]>(allPeople);
   const [sexCount, setSexCount] = useState<number>(0);
 
-  // console.log('------searchParams----', sort);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const sort = searchParams.get('sort') || null;
+
+  // let lok = searchParams.sort
 
   const calcul = () => {
     setSexCount(prev => (prev + 1) % 3)
-    console.log('------searchParams----0-1', sort, sexCount);
+    // console.log('------searchParams----0-1', sort, sexCount);
   }
+
+
 
   useEffect(() => {
     if (sort !== 'sex') {
@@ -35,23 +35,24 @@ export const PeopleTable: React.FC<Props> = ({ allPeople }) => {
 
     if (sexCount === 1) {
       setPeopleToDisplay([...allPeople].sort((a, b) => a.sex.localeCompare(b.sex)));
-      return
+      searchParams.set('sort', 'sex');
+      setSearchParams(searchParams);
     }
     if (sexCount === 2) {
       setPeopleToDisplay([...allPeople].sort((a, b) => b.sex.localeCompare(a.sex)));
+      searchParams.set('order', 'desc');
+      setSearchParams(searchParams);
       return
     }
     if (sexCount === 0) {
+      searchParams.delete('sort');
+      searchParams.delete('order');
+      setSearchParams(searchParams);
 
       return setPeopleToDisplay([...allPeople]);
     }
     return
   }, [sexCount]);
-
-    // console.log('------searchParams----', sort, sexCount);
-
-
-
 
   return (
     <table
