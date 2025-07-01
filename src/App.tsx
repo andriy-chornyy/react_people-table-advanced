@@ -1,9 +1,15 @@
 import './App.scss';
 import { Navbar } from './components/Navbar';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes} from 'react-router-dom';
 import { PeoplePage } from './components/PeoplePage';
+// import { useEffect } from "react";
 
 export const App = () => {
+  // const location = useLocation();
+
+  // useEffect(() => {
+  //   console.log('location----location', location);
+  // }, [location])
 
   return (
     <div data-cy="app">
