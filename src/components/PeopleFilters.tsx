@@ -1,10 +1,44 @@
+import { NavLink, useSearchParams } from 'react-router-dom';
+import cn from "classnames";
+
+// const getLinkClass = ({ isActive }: {isActive: boolean}) => classNames({ "is-active": isActive })
 
 export const PeopleFilters = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const filterValue = searchParams.get('sex');
+  const filterCenturies = searchParams.get('centuries');
+
+  enum FilterType {
+    All = '',
+    Male = '/?sex=m',
+    Female = '/?sex=f',
+  }
+
+  console.log('Object.values(SortType)-----111', Object.values(FilterType));
+  // Object.values(SortType)
+  // Object.values(...).map(el => {.... return <SearchLink parm={...} />})
+  const arrFilterType = Object.entries(FilterType);
+
   return (
     <nav className="panel">
       <p className="panel-heading">Filters</p>
 
       <p className="panel-tabs" data-cy="SexFilter">
+        {arrFilterType.map(([key, path]) => {
+          return (
+            <NavLink
+              to={path}
+              key={path}
+              className={({ isActive }) => cn('', { 'is-active': isActive })}
+            >
+              {key}
+            </NavLink>
+          );
+        })}
+      </p>
+
+      {/* <p className="panel-tabs" data-cy="SexFilter">
         <a className="is-active" href="#/people">
           All
         </a>
@@ -14,7 +48,7 @@ export const PeopleFilters = () => {
         <a className="" href="#/people?sex=f">
           Female
         </a>
-      </p>
+      </p> */}
 
       <div className="panel-block">
         <p className="control has-icons-left">
