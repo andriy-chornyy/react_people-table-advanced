@@ -5,6 +5,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Person } from '../types';
 import { SearchLink } from './SearchLink';
 import { useEffect, useState } from 'react';
+import { type } from 'os';
 
 
 type Props = {
@@ -13,24 +14,22 @@ type Props = {
 
 export const PeopleTable: React.FC<Props> = ({peopleToDisplay} ) => {
   const { slug } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const sortValue = searchParams.get('sort')
+  const sortOrder = searchParams.get('order')
+  // let noValue = sortValue === null && sortOrder === null
 
 
-  // const [searchParams, setSearchParams] = useSearchParams();
+  console.log(`sortOrder-------`, sortOrder)
+  console.log(`sortValue-------`, sortValue)
 
-  // const paramsObject = Object.fromEntries(searchParams.entries());
+  // let typeOfSort = 'name' | 'sex' | 'born' | 'died' | null;
 
-  // console.log('paramsObject-----paramsObject', paramsObject);
+  
 
-
-  // const handleClick = (sortValue: string) => {
-  //   const params = new URLSearchParams(searchParams)
-
-  //   if (!params.has('sort')) {
-  //     params.set('sort', sortValue)
-
-  //   }
-  //   console.log(searchParams);
-  // }
+  let result = sortValue === 'sex' && sortOrder === 'desc' ? ({ sort: null, order: null })
+  : (sortValue !== 'sex' && sortOrder !== 'desc' ? ({ sort: 'sex', order: null, }) : ({ sort: 'sex', order: 'desc' }))
 
 
 
@@ -55,7 +54,10 @@ export const PeopleTable: React.FC<Props> = ({peopleToDisplay} ) => {
           <th>
             <span className="is-flex is-flex-wrap-nowrap">
               Sex
-              <SearchLink params={{ sort: 'sex' }} onClick={() => handleClick('sex')} >
+              <SearchLink
+                params={result}
+              >
+
                 {/* <SearchLink params={{ sort: 'sex' }} onClick={calcul}> */}
                 <span className="icon">
                   <i className="fas fa-sort-down" />

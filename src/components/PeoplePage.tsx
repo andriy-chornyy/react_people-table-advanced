@@ -69,12 +69,12 @@ export const PeoplePage: React.FC = () => {
       setPeopleToDisplay(allPeople);
     }
 
-  }, [allPeople]);
+  }, [searchParams, allPeople]);
 
 
 
   // console.log('searchParams-----searchParams', searchParams);
-  console.log('searchParams-----searchParams', searchParams);
+
 
   return (
     <>
