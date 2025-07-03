@@ -1,7 +1,7 @@
 import { NavLink, useSearchParams } from 'react-router-dom';
 import cn from "classnames";
-
-// const getLinkClass = ({ isActive }: {isActive: boolean}) => classNames({ "is-active": isActive })
+import { SearchLink } from './SearchLink';
+import { getSearchWith } from '../utils/searchHelper';
 
 export const PeopleFilters = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -11,13 +11,10 @@ export const PeopleFilters = () => {
 
   enum FilterType {
     All = '',
-    Male = '/?sex=m',
-    Female = '/?sex=f',
+    Male = 'm',
+    Female = 'f',
   }
 
-  console.log('Object.values(SortType)-----111', Object.values(FilterType));
-  // Object.values(SortType)
-  // Object.values(...).map(el => {.... return <SearchLink parm={...} />})
   const arrFilterType = Object.entries(FilterType);
 
   return (
@@ -26,14 +23,29 @@ export const PeopleFilters = () => {
 
       <p className="panel-tabs" data-cy="SexFilter">
         {arrFilterType.map(([key, path]) => {
+
+          const current = new URLSearchParams(searchParams);
+          let result = {};
+          if (key === 'All') {
+            current.delete('sex')
+            result = {}
+          } else if (key === 'Male') {
+            result = {sex: 'm'}
+          } else if (key === 'Female') {
+            result = {sex: 'f'}
+          }
+            console.log('key', path, key);
+
+
+
           return (
-            <NavLink
-              to={path}
+            <SearchLink
+              params={result}
               key={path}
-              className={({ isActive }) => cn('', { 'is-active': isActive })}
+              // className={({ isActive }) => cn('', { 'is-active': isActive })}
             >
               {key}
-            </NavLink>
+            </SearchLink>
           );
         })}
       </p>
