@@ -1,66 +1,70 @@
-import { NavLink, useSearchParams } from 'react-router-dom';
-import cn from "classnames";
+import { useSearchParams } from 'react-router-dom';
+import cn from 'classnames';
 import { SearchLink } from './SearchLink';
-import { getSearchWith } from '../utils/searchHelper';
 
 export const PeopleFilters = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const filterValue = searchParams.get('sex');
   const filterCenturies = searchParams.get('centuries');
+  const selectedCenturies = searchParams.getAll('centuries');
 
-  enum FilterType {
+  const resetCenturiesFilters = {
+    centuries: null,
+  };
+
+  const resetAllFilters = {
+    sex: null,
+    centuries: null,
+  };
+
+  enum FilterSex {
     All = '',
     Male = 'm',
     Female = 'f',
   }
 
-  const arrFilterType = Object.entries(FilterType);
+  const FilterCenturies = {
+    16: '16',
+    17: '17',
+    18: '18',
+    19: '19',
+    20: '20',
+  };
+
+  const arrFilterSex = Object.entries(FilterSex);
+  const arrFilterCenturies = Object.entries(FilterCenturies);
 
   return (
     <nav className="panel">
       <p className="panel-heading">Filters</p>
 
       <p className="panel-tabs" data-cy="SexFilter">
-        {arrFilterType.map(([key, path]) => {
-
-          const current = new URLSearchParams(searchParams);
+        {arrFilterSex.map(([key, path]) => {
           let result = {};
+
           if (key === 'All') {
-            current.delete('sex')
-            result = {}
+            result = { sex: null };
           } else if (key === 'Male') {
-            result = {sex: 'm'}
+            result = { sex: 'm' };
           } else if (key === 'Female') {
-            result = {sex: 'f'}
+            result = { sex: 'f' };
           }
-            console.log('key', path, key);
-
-
 
           return (
             <SearchLink
               params={result}
               key={path}
-              // className={({ isActive }) => cn('', { 'is-active': isActive })}
+              className={cn({
+                'is-active':
+                  (path === '' && !filterValue) || filterValue === path,
+              })}
             >
               {key}
             </SearchLink>
           );
         })}
       </p>
-
-      {/* <p className="panel-tabs" data-cy="SexFilter">
-        <a className="is-active" href="#/people">
-          All
-        </a>
-        <a className="" href="#/people?sex=m">
-          Male
-        </a>
-        <a className="" href="#/people?sex=f">
-          Female
-        </a>
-      </p> */}
 
       <div className="panel-block">
         <p className="control has-icons-left">
@@ -80,63 +84,49 @@ export const PeopleFilters = () => {
       <div className="panel-block">
         <div className="level is-flex-grow-1 is-mobile" data-cy="CenturyFilter">
           <div className="level-left">
-            <a
-              data-cy="century"
-              className="button mr-1"
-              href="#/people?centuries=16"
-            >
-              16
-            </a>
+            {arrFilterCenturies.map(([key, value]) => {
+              const isSelected = selectedCenturies.includes(value);
 
-            <a
-              data-cy="century"
-              className="button mr-1 is-info"
-              href="#/people?centuries=17"
-            >
-              17
-            </a>
+              const updatedCenturies = isSelected
+                ? selectedCenturies.filter(item => item !== value)
+                : [...selectedCenturies, value];
 
-            <a
-              data-cy="century"
-              className="button mr-1 is-info"
-              href="#/people?centuries=18"
-            >
-              18
-            </a>
-
-            <a
-              data-cy="century"
-              className="button mr-1 is-info"
-              href="#/people?centuries=19"
-            >
-              19
-            </a>
-
-            <a
-              data-cy="century"
-              className="button mr-1"
-              href="#/people?centuries=20"
-            >
-              20
-            </a>
+              return (
+                <SearchLink
+                  data-cy="century"
+                  className={cn('button mr-1', {
+                    'is-info': selectedCenturies.includes(value),
+                  })}
+                  params={{ centuries: updatedCenturies }}
+                  key={key}
+                >
+                  {value}
+                </SearchLink>
+              );
+            })}
           </div>
 
           <div className="level-right ml-4">
-            <a
+            <SearchLink
               data-cy="centuryALL"
-              className="button is-success is-outlined"
-              href="#/people"
+              params={resetCenturiesFilters}
+              className={cn('button is-success', {
+                'is-outlined': filterCenturies !== null,
+              })}
             >
               All
-            </a>
+            </SearchLink>
           </div>
         </div>
       </div>
 
       <div className="panel-block">
-        <a className="button is-link is-outlined is-fullwidth" href="#/people">
+        <SearchLink
+          className="button is-fullwidth is-link is-outlined"
+          params={resetAllFilters}
+        >
           Reset all filters
-        </a>
+        </SearchLink>
       </div>
     </nav>
   );

@@ -4,7 +4,6 @@ import cn from 'classnames';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Person } from '../types';
 import { SearchLink } from './SearchLink';
-import { useEffect, useState } from 'react';
 
 type Props = {
   peopleToDisplay: Person[];
@@ -12,13 +11,10 @@ type Props = {
 
 export const PeopleTable: React.FC<Props> = ({ peopleToDisplay }) => {
   const { slug } = useParams();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const sortValue = searchParams.get('sort');
   const sortOrder = searchParams.get('order');
-
-  console.log(`sortOrder-------`, sortOrder);
-  console.log(`sortValue-------`, sortValue);
 
   enum SortType {
     Name = 'name',
@@ -27,10 +23,6 @@ export const PeopleTable: React.FC<Props> = ({ peopleToDisplay }) => {
     Died = 'died',
   }
 
-  // Object.keys
-  console.log('Object.values(SortType)-----111', Object.values(SortType));
-  // Object.values(SortType)
-  // Object.values(...).map(el => {.... return <SearchLink parm={...} />})
   const arrSortType = Object.entries(SortType);
 
   return (
@@ -41,18 +33,10 @@ export const PeopleTable: React.FC<Props> = ({ peopleToDisplay }) => {
       <thead>
         <tr>
           {arrSortType.map(([key, value]) => {
-            // const result =
-            //   sortValue === value && sortOrder === 'desc'
-            //     ? { sort: null, order: null }
-            //     : sortValue !== value && sortOrder !== 'desc'
-            //       ? { sort: value, order: null }
-            //       : { sort: value, order: 'desc' };
-
-            let result: { sort?: string | null; order?: string | null } = {};
+            let result = {};
             let arrow = '';
 
             if (sortValue === value && sortOrder === 'desc') {
-
               result = { sort: null, order: null };
               arrow = 'ArrowDown';
             } else if (sortValue !== value) {

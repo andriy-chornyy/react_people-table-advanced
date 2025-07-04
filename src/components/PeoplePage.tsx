@@ -4,7 +4,7 @@ import { Person } from '../types';
 import { PeopleFilters } from './PeopleFilters';
 import { Loader } from './Loader';
 import { PeopleTable } from './PeopleTable';
-import { Outlet, useSearchParams } from 'react-router-dom';
+import { Outlet, useSearchParams, useLocation  } from 'react-router-dom';
 
 export const PeoplePage: React.FC = () => {
   const [allPeople, setAllPeople] = useState<Person[]>([]);
@@ -16,13 +16,18 @@ export const PeoplePage: React.FC = () => {
 
   const sort = searchParams.get('sort') || null;
   const order = searchParams.get('order') || null;
+  const sex = searchParams.get('sex') || null;
+  const centuries = searchParams.getAll('centuries') || null;
+
+  console.log('centuries--------', centuries);
+
 
   useEffect(() => {
     getPeople()
-      .then(data => {
-        if (data.length === 0) {
-          setIsEmpty(true);
-          setHasError(false);
+    .then(data => {
+      if (data.length === 0) {
+        setIsEmpty(true);
+        setHasError(false);
         } else {
           setAllPeople(data);
           setIsEmpty(false);
@@ -36,13 +41,35 @@ export const PeoplePage: React.FC = () => {
       .finally(() => {
         setIsLoading(false);
       });
-  }, []);
+    }, []);
 
-  useEffect(() => {
-    const keys = Array.from(searchParams.keys());
+    // const location = useLocation().search;
+    useEffect(() => {
+      const keys = Array.from(searchParams.keys());
 
-    if (keys.includes("sort")) {
-      let sortedPeople = [...allPeople];
+      if (keys.includes("sort") || keys.includes("sex") || keys.includes('centuries')) {
+        if (allPeople.length === 0) {
+          return;
+        }
+        let sortedPeople = [...allPeople];
+
+        sortedPeople = centuries.length === 0
+        ? allPeople
+        : allPeople.filter(person => {
+            return centuries.some(century => {
+              const start = (+century - 1) * 100 + 1;
+              const end = +century * 100;
+              return person.born >= start && person.born <= end;
+            });
+          });
+
+      if (sex === 'f') {
+        sortedPeople = sortedPeople.filter(person => person.sex === 'f')
+      }
+
+      if (sex === 'm') {
+        sortedPeople = sortedPeople.filter(person => person.sex === 'm')
+      }
 
       if (sort === 'sex') {
         sortedPeople = sortedPeople.sort((a, b) => a.sex.localeCompare(b.sex))
@@ -57,19 +84,24 @@ export const PeoplePage: React.FC = () => {
       }
 
       if (sort === 'died') {
-        sortedPeople = sortedPeople.sort((a, b) => a.died - b.died)
+        sortedPeople = sortedPeople.sort((a, b) => b.died - a.died)
       }
 
       if (keys.includes("order") && order === 'desc') {
         sortedPeople = sortedPeople.reverse()
       }
 
+
+
+
+
       setPeopleToDisplay(sortedPeople);
     } else {
       setPeopleToDisplay(allPeople);
     }
 
-  }, [searchParams, allPeople]);
+    // console.log('keys', keys)
+  }, [searchParams, allPeople, location]);
 
 
 
