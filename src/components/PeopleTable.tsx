@@ -93,7 +93,7 @@ export const PeopleTable: React.FC<Props> = ({ peopleToDisplay }) => {
                 <Link
                   to={{
                     pathname: `/people/${person.slug}`,
-                    search: searchParams.toString()
+                    search: searchParams.toString(),
                   }}
                   className={cn({ 'has-text-danger': person.sex === 'f' })}
                 >
@@ -110,7 +110,7 @@ export const PeopleTable: React.FC<Props> = ({ peopleToDisplay }) => {
                   <Link
                     to={{
                       pathname: `/people/${mother.slug}`,
-                      search: searchParams.toString()
+                      search: searchParams.toString(),
                     }}
                     className={cn({ 'has-text-danger': mother.sex === 'f' })}
                   >
@@ -123,10 +123,14 @@ export const PeopleTable: React.FC<Props> = ({ peopleToDisplay }) => {
 
               <td>
                 {father ? (
-                  <Link to={{
-                    pathname: `/people/${father.slug}`,
-                    search: searchParams.toString()
-                  }}>{person.fatherName}</Link>
+                  <Link
+                    to={{
+                      pathname: `/people/${father.slug}`,
+                      search: searchParams.toString(),
+                    }}
+                  >
+                    {person.fatherName}
+                  </Link>
                 ) : (
                   person.fatherName || '-'
                 )}

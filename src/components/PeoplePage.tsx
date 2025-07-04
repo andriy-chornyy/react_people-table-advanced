@@ -4,7 +4,7 @@ import { Person } from '../types';
 import { PeopleFilters } from './PeopleFilters';
 import { Loader } from './Loader';
 import { PeopleTable } from './PeopleTable';
-import { Outlet, useSearchParams, useLocation  } from 'react-router-dom';
+import { Outlet, useSearchParams } from 'react-router-dom';
 
 export const PeoplePage: React.FC = () => {
   const [allPeople, setAllPeople] = useState<Person[]>([]);
@@ -12,22 +12,20 @@ export const PeoplePage: React.FC = () => {
   const [isEmpty, setIsEmpty] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [peopleToDisplay, setPeopleToDisplay] = useState<Person[]>([]);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const sort = searchParams.get('sort') || null;
   const order = searchParams.get('order') || null;
   const sex = searchParams.get('sex') || null;
   const centuries = searchParams.getAll('centuries') || null;
-
-  console.log('centuries--------', centuries);
-
+  const query = searchParams.get('query') || null;
 
   useEffect(() => {
     getPeople()
-    .then(data => {
-      if (data.length === 0) {
-        setIsEmpty(true);
-        setHasError(false);
+      .then(data => {
+        if (data.length === 0) {
+          setIsEmpty(true);
+          setHasError(false);
         } else {
           setAllPeople(data);
           setIsEmpty(false);
@@ -41,72 +39,74 @@ export const PeoplePage: React.FC = () => {
       .finally(() => {
         setIsLoading(false);
       });
-    }, []);
+  }, []);
 
-    // const location = useLocation().search;
-    useEffect(() => {
-      const keys = Array.from(searchParams.keys());
+  useEffect(() => {
+    const keys = Array.from(searchParams.keys());
 
-      if (keys.includes("sort") || keys.includes("sex") || keys.includes('centuries')) {
-        if (allPeople.length === 0) {
-          return;
-        }
-        let sortedPeople = [...allPeople];
+    if (
+      keys.includes('sort') ||
+      keys.includes('sex') ||
+      keys.includes('centuries') ||
+      keys.includes('query')
+    ) {
+      let sortedPeople = [...allPeople];
 
-        sortedPeople = centuries.length === 0
-        ? allPeople
-        : allPeople.filter(person => {
-            return centuries.some(century => {
-              const start = (+century - 1) * 100 + 1;
-              const end = +century * 100;
-              return person.born >= start && person.born <= end;
+      if (keys.includes('centuries')) {
+        sortedPeople =
+          centuries.length === 0
+            ? allPeople
+            : allPeople.filter(person => {
+              return centuries.some(century => {
+                const start = (+century - 1) * 100 + 1;
+                const end = +century * 100;
+
+                return person.born >= start && person.born <= end;
+              });
             });
-          });
-
-      if (sex === 'f') {
-        sortedPeople = sortedPeople.filter(person => person.sex === 'f')
       }
 
-      if (sex === 'm') {
-        sortedPeople = sortedPeople.filter(person => person.sex === 'm')
+      if (sex === 'f' || sex === 'm') {
+        sortedPeople = sortedPeople.filter(person => person.sex === sex);
       }
 
-      if (sort === 'sex') {
-        sortedPeople = sortedPeople.sort((a, b) => a.sex.localeCompare(b.sex))
+      if (keys.includes('sort')) {
+        if (sort === 'sex') {
+          sortedPeople = sortedPeople.sort((a, b) =>
+            a.sex.localeCompare(b.sex),
+          );
+        }
+
+        if (sort === 'name') {
+          sortedPeople = sortedPeople.sort((a, b) =>
+            a.name.localeCompare(b.name),
+          );
+        }
+
+        if (sort === 'born') {
+          sortedPeople = sortedPeople.sort((a, b) => a.born - b.born);
+        }
+
+        if (sort === 'died') {
+          sortedPeople = sortedPeople.sort((a, b) => a.died - b.died);
+        }
+
+        if (keys.includes('order') && order === 'desc') {
+          sortedPeople = sortedPeople.reverse();
+        }
       }
 
-      if (sort === 'name') {
-        sortedPeople = sortedPeople.sort((a, b) => a.name.localeCompare(b.name))
+      if (query) {
+        sortedPeople = sortedPeople.filter(person =>
+          person.name.toLowerCase().includes(query?.toLowerCase()),
+        );
       }
-
-      if (sort === 'born') {
-        sortedPeople = sortedPeople.sort((a, b) => a.born - b.born)
-      }
-
-      if (sort === 'died') {
-        sortedPeople = sortedPeople.sort((a, b) => b.died - a.died)
-      }
-
-      if (keys.includes("order") && order === 'desc') {
-        sortedPeople = sortedPeople.reverse()
-      }
-
-
-
-
 
       setPeopleToDisplay(sortedPeople);
     } else {
       setPeopleToDisplay(allPeople);
     }
-
-    // console.log('keys', keys)
-  }, [searchParams, allPeople, location]);
-
-
-
-  // console.log('searchParams-----searchParams', searchParams);
-
+  }, [searchParams, allPeople, sort, order, query, sex, centuries]);
 
   return (
     <>
@@ -137,13 +137,13 @@ export const PeoplePage: React.FC = () => {
                     </p>
                   )}
 
-                  <p>
-                    There are no people matching the current search criteria
-                  </p>
-
-                  <PeopleTable
-                    peopleToDisplay={peopleToDisplay}
-                  />
+                  {query && peopleToDisplay.length === 0 ? (
+                    <p>
+                      There are no people matching the current search criteria
+                    </p>
+                  ) : (
+                    <PeopleTable peopleToDisplay={peopleToDisplay} />
+                  )}
                 </div>
               </div>
             </>

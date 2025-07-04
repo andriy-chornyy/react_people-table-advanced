@@ -1,9 +1,10 @@
 import { useSearchParams } from 'react-router-dom';
 import cn from 'classnames';
 import { SearchLink } from './SearchLink';
+import { useState } from 'react';
 
 export const PeopleFilters = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const filterValue = searchParams.get('sex');
   const filterCenturies = searchParams.get('centuries');
@@ -34,6 +35,17 @@ export const PeopleFilters = () => {
 
   const arrFilterSex = Object.entries(FilterSex);
   const arrFilterCenturies = Object.entries(FilterCenturies);
+  const [searchQuery, setSearchQuery] = useState(
+    () => searchParams.get('query') || '',
+  );
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+
+    const params = new URLSearchParams(searchParams);
+
+    params.set('query', event.target.value);
+    setSearchParams(params);
+  };
 
   return (
     <nav className="panel">
@@ -73,6 +85,8 @@ export const PeopleFilters = () => {
             type="search"
             className="input"
             placeholder="Search"
+            value={searchQuery}
+            onChange={handleSearchChange}
           />
 
           <span className="icon is-left">
